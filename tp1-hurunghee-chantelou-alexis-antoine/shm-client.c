@@ -9,6 +9,8 @@
 #include "shm-message.h"
 #include "shm-common.h"
 
+void writeSHMMessage(shm_message_t messageTMP);
+
 int main(int argc, char *argv[])
 {
     int opt = 0, option_index = 0, sec = 1, id = 1, time=1, daemon = 1,shmGetRes = 0;
@@ -34,37 +36,37 @@ int main(int argc, char *argv[])
     switch(opt)
     {
       case 'h':
-      afficheHelp(argv,1);
-      break;
+        afficheHelp(argv,1);
+        break;
 
       case 'v':
-      afficheVersion(argv);
-      break;
+        afficheVersion(argv);
+        break;
 
       case 'i':
-      id  = strtol(optarg,NULL,10);
-      break;
+        id  = strtol(optarg,NULL,10);
+        break;
 
       case 'p':
-      strcpy(pathname,optarg);
-      break;
+        strcpy(pathname,optarg);
+        break;
 
       case 's':
-      sec = strtol(optarg,NULL,10);
-      break;
+        sec = strtol(optarg,NULL,10);
+        break;
 
       case 't':
-      daemon = 0;
-      time = strtol(optarg,NULL,10);
-      break;
+        daemon = 0;
+        time = strtol(optarg,NULL,10);
+        break;
 
       case 'n':
-      shm_message_set_name(&messageTMP,optarg);
-      break;
+        shm_message_set_name(&messageTMP,optarg);
+        break;
 
       case 'x':
-      shm_message_set_text(&messageTMP,optarg);
-      break;
+        shm_message_set_text(&messageTMP,optarg);
+        break;
 
       default:
         shm_message_empty(&messageTMP);
@@ -84,14 +86,30 @@ int main(int argc, char *argv[])
     }
 
     shm_message_copy(messageTMP, messSHM);
-
+    printf("%d\n",sec );
     while(time)
     {
       sleep(sec);
+      if(sec == 0)
+      {
+        daemon = 0;
+        writeSHMMessage(messageTMP);
+        shm_message_print(messageTMP);
+      }
       if(!daemon)
         time--;
-
     }
     shmctl(shmGetRes,IPC_RMID,NULL);
     return 0;
+}
+
+void writeSHMMessage(shm_message_t messageTMP)
+{
+  char k;
+  do
+  {
+    printf("Press the Enter key to continue... ");
+    k = getchar();
+    printf("\n");
+  }while(k != 0x0A);
 }
