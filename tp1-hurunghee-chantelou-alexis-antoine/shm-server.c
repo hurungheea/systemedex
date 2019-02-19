@@ -61,13 +61,13 @@ int main(int argc, char *argv[])
   printf("pathname = \"%s\"\n",pathname);
 
   message = getSHM(pathname,&id,&shmGetRes,SERVER);
-  if(message   == (void*)-1) /* Si SHMAT return -1 */
+  if(message == (void*)-1) /* Si SHMAT return -1 */
   {
     printf("pas d'addr SHM\n");
     shmctl(shmGetRes,IPC_RMID,NULL);
     exit(1);
   }
-
+  
   while(time)
   {
     sleep(sec);

@@ -13,7 +13,7 @@ void writeSHMMessage(shm_message_t messageTMP);
 
 int main(int argc, char *argv[])
 {
-    int opt = 0, option_index = 0, sec = 1, id = 1, time=1, daemon = 1,shmGetRes = 0;
+    int opt = 0, option_index = 0, sec = 1, id = 1, time=0, daemon = 1,shmGetRes = 0;
     char* pathname = "file.ftok";
     shm_message_t messageTMP;
     shm_message_t* messSHM = NULL;
@@ -29,7 +29,8 @@ int main(int argc, char *argv[])
       {"message-text=", 1, NULL,'x'},
       {0, 0, 0, 0}
     };
-
+    printf("name -> : %d",shm_message_set_name(&messageTMP,"Default name"));
+    printf("text -> : %d",shm_message_set_text(&messageTMP,"This is the default message text"));
   do
   {
     opt = getopt_long(argc,argv,"hvi:p:s:t:x:n:",long_options,&option_index);
@@ -69,7 +70,7 @@ int main(int argc, char *argv[])
         break;
 
       default:
-        shm_message_empty(&messageTMP);
+        /*  */
         break;
     }
   } while(opt != -1);
@@ -85,8 +86,9 @@ int main(int argc, char *argv[])
       exit(1);
     }
 
-    shm_message_copy(messageTMP, messSHM);
-    printf("%d\n",sec );
+
+    printf("%d\n",shm_message_copy(messageTMP, messSHM));
+    shm_message_print(*messSHM);
     while(time)
     {
       sleep(sec);
@@ -94,12 +96,11 @@ int main(int argc, char *argv[])
       {
         daemon = 0;
         writeSHMMessage(messageTMP);
-        shm_message_print(messageTMP);
       }
+      shm_message_print(messageTMP);
       if(!daemon)
         time--;
     }
-    shmctl(shmGetRes,IPC_RMID,NULL);
     return 0;
 }
 

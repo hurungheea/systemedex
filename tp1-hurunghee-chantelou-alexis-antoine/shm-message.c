@@ -30,7 +30,7 @@ void shm_message_empty(shm_message_t *message)
 
 int shm_message_set_text(shm_message_t *message, const char *text)
 {
-  if((strlen(text)) > SHM_MESSAGE_TEXT_SIZE)
+  if(strlen(text) > SHM_MESSAGE_TEXT_SIZE)
     return -1;
   strcpy(message->text,text);
   return 0;
@@ -38,8 +38,13 @@ int shm_message_set_text(shm_message_t *message, const char *text)
 
 int shm_message_copy(shm_message_t message_source, shm_message_t* message_target)
 {
-  if((shm_message_set_name(message_target,message_source.name))&&(shm_message_set_text(message_target,message_source.text)))
-    return 0;
+  if(shm_message_set_name(message_target,message_source.name) == 0)
+  {
+    if(shm_message_set_text(message_target,message_source.text) == 0)
+      return 0;
+    else
+      return -1;
+  }
   else
     return -1;
 }

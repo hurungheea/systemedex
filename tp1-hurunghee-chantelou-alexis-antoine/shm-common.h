@@ -8,8 +8,8 @@
 #include<sys/ipc.h>
 #include "shm-message.h"
 
-#define CLIENT 0
-#define SERVER 1
+#define CLIENT 1
+#define SERVER 0
 
 shm_message_t* getSHM(char *pathname, int* id, int* shmGetRes, int client);
 void afficheHelp(char **argv, int client);

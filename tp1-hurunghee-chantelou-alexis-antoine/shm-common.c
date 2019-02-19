@@ -5,9 +5,9 @@ shm_message_t* getSHM(char *pathname, int* id, int* shmGetRes,int client)
   shm_message_t* message = NULL;
   key_t key = ftok(pathname,*id);
   if(client)
-    *shmGetRes = shmget(key,sizeof(shm_message_t),IPC_CREAT|IPC_EXCL|0600);
+    *shmGetRes = shmget(key,sizeof(shm_message_t),0);
   else
-    *shmGetRes = shmget(key,sizeof(shm_message_t),0600);
+    *shmGetRes = shmget(key,sizeof(shm_message_t),IPC_CREAT|IPC_EXCL|0600);
   message = (shm_message_t*) shmat(*shmGetRes,NULL,0);
   if(message == (void*)-1)
     return (void*) -1;
