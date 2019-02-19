@@ -67,17 +67,20 @@ int main(int argc, char *argv[])
     shmctl(shmGetRes,IPC_RMID,NULL);
     exit(1);
   }
-  
+
   while(time)
   {
-    sleep(sec);
-    if(!daemon)
-      time--;
-    if(!shm_message_is_empty(*message))
+    if(sec == 0)
     {
-      shm_message_print(*message);
-      shm_message_empty(message);
+      waitingForEnter();
     }
+    else
+    {
+      sleep(sec);
+      if(!daemon)
+        time--;
+    }
+    checkSHMMessage(message);
   }
   shmctl(shmGetRes,IPC_RMID,NULL);
   return 0;

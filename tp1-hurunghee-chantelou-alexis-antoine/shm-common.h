@@ -11,8 +11,10 @@
 #define CLIENT 1
 #define SERVER 0
 
-shm_message_t* getSHM(char *pathname, int* id, int* shmGetRes, int client);
-void afficheHelp(char **argv, int client);
+void waitingForEnter();
 void afficheVersion(char **argv);
+void afficheHelp(char **argv, int client);
+void checkSHMMessage(shm_message_t* message);
+shm_message_t* getSHM(char *pathname, int* id, int* shmGetRes, int client);
 
 #endif

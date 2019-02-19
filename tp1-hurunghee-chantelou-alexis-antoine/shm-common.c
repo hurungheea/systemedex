@@ -1,5 +1,25 @@
 #include "shm-common.h"
 
+void checkSHMMessage(shm_message_t* message)
+{
+  if(!shm_message_is_empty(*message))
+  {
+    shm_message_print(*message);
+    shm_message_empty(message);
+  }
+}
+
+void waitingForEnter()
+{
+  char k;
+  do
+  {
+    printf("Press the Enter key to continue... ");
+    k = getchar();
+    printf("\n");
+  }while(k != 0x0A);
+}
+
 shm_message_t* getSHM(char *pathname, int* id, int* shmGetRes,int client)
 {
   shm_message_t* message = NULL;

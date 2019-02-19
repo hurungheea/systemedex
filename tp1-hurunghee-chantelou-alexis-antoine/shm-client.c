@@ -9,8 +9,6 @@
 #include "shm-message.h"
 #include "shm-common.h"
 
-void writeSHMMessage(shm_message_t messageTMP);
-
 int main(int argc, char *argv[])
 {
     int opt = 0, option_index = 0, sec = 1, id = 1, time=0, daemon = 1,shmGetRes = 0;
@@ -29,8 +27,8 @@ int main(int argc, char *argv[])
       {"message-text=", 1, NULL,'x'},
       {0, 0, 0, 0}
     };
-    printf("name -> : %d",shm_message_set_name(&messageTMP,"Default name"));
-    printf("text -> : %d",shm_message_set_text(&messageTMP,"This is the default message text"));
+    shm_message_set_name(&messageTMP,"Default name");
+    shm_message_set_text(&messageTMP,"This is the default message text");
   do
   {
     opt = getopt_long(argc,argv,"hvi:p:s:t:x:n:",long_options,&option_index);
@@ -86,31 +84,25 @@ int main(int argc, char *argv[])
       exit(1);
     }
 
+    /* shm_message_copy(messageTMP,messSHM); */
 
-    printf("%d\n",shm_message_copy(messageTMP, messSHM));
-    shm_message_print(*messSHM);
     while(time)
     {
-      sleep(sec);
+      shm_message_copy(messageTMP,messSHM);
+      shm_message_print(messageTMP);
+      if(time == 0)
+        break;
+      if(!daemon)
+        time--;
       if(sec == 0)
       {
         daemon = 0;
-        writeSHMMessage(messageTMP);
+        waitingForEnter();
       }
-      shm_message_print(messageTMP);
-      if(!daemon)
-        time--;
+      else
+      {
+        sleep(sec);
+      }
     }
     return 0;
-}
-
-void writeSHMMessage(shm_message_t messageTMP)
-{
-  char k;
-  do
-  {
-    printf("Press the Enter key to continue... ");
-    k = getchar();
-    printf("\n");
-  }while(k != 0x0A);
 }

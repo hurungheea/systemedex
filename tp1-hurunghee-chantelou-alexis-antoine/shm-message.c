@@ -38,13 +38,8 @@ int shm_message_set_text(shm_message_t *message, const char *text)
 
 int shm_message_copy(shm_message_t message_source, shm_message_t* message_target)
 {
-  if(shm_message_set_name(message_target,message_source.name) == 0)
-  {
-    if(shm_message_set_text(message_target,message_source.text) == 0)
-      return 0;
-    else
-      return -1;
-  }
+  if((shm_message_set_name(message_target,message_source.name) == 0)&&(shm_message_set_text(message_target,message_source.text) == 0))
+    return 0;
   else
     return -1;
 }
