@@ -5,17 +5,32 @@ void displayError(void* t, ...)
   char* toPrint = NULL;
   va_list args;
   printf("%d\n",errno);
-  switch (errno)
+  switch(errno)
   {
-    case 142:
-      toPrint = "%s:%s:%d: Unable to copy the message because the target message is not empty.\n";
-      break;
     case 2:
       toPrint = "%s:%s:%d: Unable to create the System V IPC key from the \"%s\"pathname and the \"%d\" project identifier.\n";
       break;
+
     case 22:
       toPrint = "%s:%s:%d: Unable to get the identifier of the System V shared memory segment from the \"0x%x\" key.\n";
       break;
+
+    case 140:
+      toPrint = "%s:%s:%d: Unable to copy the message because the target message is not empty.\n";
+      break;
+
+    case 150:
+      toPrint = "%s:%s:%d: Unable to copy the message.\n";
+      break;
+
+    case 160:
+      toPrint = "%s:%s:%d: \n";
+      break;
+
+    case 170:
+      toPrint = "%s:%s:%d: Unable to set the \"%s\" message text because its \"%d\" is greater than \"64\".\n";
+      break;
+
     default:
       printf("default\n");
       break;

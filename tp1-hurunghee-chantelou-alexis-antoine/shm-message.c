@@ -6,7 +6,11 @@
 int shm_message_set_name(shm_message_t *message, const char *name)
 {
   if((strlen(name)) > SHM_MESSAGE_NAME_SIZE)
+  {
+    errno = 170;
+    displayError(NULL,argv[0],__FILE__,__LINE__,message->name,strlen(message->name));
     return -1;
+  }
   strcpy(message->name, name);
   return 0;
 }
@@ -31,14 +35,22 @@ void shm_message_empty(shm_message_t *message)
 int shm_message_set_text(shm_message_t *message, const char *text)
 {
   if(strlen(text) > SHM_MESSAGE_TEXT_SIZE)
+  {
+    displayError(NULL,argv[0],__FILE__,__LINE__,message->text,strlen(message->text));
     return -1;
+  }
   strcpy(message->text,text);
   return 0;
 }
 
 int shm_message_copy(shm_message_t message_source, shm_message_t* message_target)
 {
-  if((shm_message_set_name(message_target,message_source.name) == 0)&&(shm_message_set_text(message_target,message_source.text) == 0))
+  if(shm_message_is_empty()==0)
+  {
+    errno = 142;
+    return -1;
+  }
+  else if((shm_message_set_name(message_target,message_source.name) == 0)&&(shm_message_set_text(message_target,message_source.text) == 0))
     return 0;
   else
     return -1;

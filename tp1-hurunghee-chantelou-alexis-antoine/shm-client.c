@@ -91,7 +91,11 @@ int main(int argc, char *argv[])
     while(times)
     {
       if(shm_message_copy(messageTMP,messSHM)!=0)
+      {
         displayError(NULL,argv[0],__FILE__,__LINE__);
+        errno = 150;
+        displayError(NULL,argv[0],__FILE__,__LINE__);
+      }
 
       shm_message_print(messageTMP);
       if(times == 0)
