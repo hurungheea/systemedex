@@ -11,7 +11,7 @@
 
 int main(int argc, char *argv[])
 {
-    int opt = 0, option_index = 0, sec = 1, id = 1, time=0, daemon = 1,shmGetRes = 0;
+    int opt = 0, option_index = 0, sec = 1, id = 1, times=0, daemon = 1,shmGetRes = 0;
     key_t key = 0;
     char* pathname = "file.ftok";
     shm_message_t messageTMP;
@@ -19,13 +19,13 @@ int main(int argc, char *argv[])
     static struct option long_options[] =
     {
       {"help", 0, NULL,'h'},
-      {"key-proj-id=", 1, NULL,'i'},
-      {"key-pathname=", 1, NULL,'p'},
-      {"seconds=", 1, NULL,'s'},
-      {"times=", 1, NULL,'t'},
+      {"key-proj-id", 1, NULL,'i'},
+      {"key-pathname", 1, NULL,'p'},
+      {"seconds", 1, NULL,'s'},
+      {"times", 1, NULL,'t'},
       {"version", 1, NULL,'v'},
-      {"message-name=", 1, NULL,'n'},
-      {"message-text=", 1, NULL,'x'},
+      {"message-name", 1, NULL,'n'},
+      {"message-text", 1, NULL,'x'},
       {0, 0, 0, 0}
     };
     shm_message_set_name(&messageTMP,"Default name");
@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
 
       case 't':
         daemon = 0;
-        time = strtol(optarg,NULL,10);
+        times = strtol(optarg,NULL,10);
         break;
 
       case 'n':
@@ -83,20 +83,21 @@ int main(int argc, char *argv[])
 
     messSHM = getSHM(&key,&shmGetRes,CLIENT);
     if(messSHM == (void*)-1)
-      displayError(NULL,argv[0],__FILE__,__LINE__,messSHM);
+      displayError(NULL,argv[0],__FILE__,__LINE__,key);
 
-    /* shm_message_copy(messageTMP,messSHM); */
+    shm_message_copy(messageTMP,messSHM);
+    shm_message_print(messageTMP);
 
-    while(time)
+    while(times)
     {
       if(shm_message_copy(messageTMP,messSHM)!=0)
         displayError(NULL,argv[0],__FILE__,__LINE__);
 
       shm_message_print(messageTMP);
-      if(time == 0)
+      if(times == 0)
         break;
       if(!daemon)
-        time--;
+        times--;
       if(sec == 0)
       {
         daemon = 0;

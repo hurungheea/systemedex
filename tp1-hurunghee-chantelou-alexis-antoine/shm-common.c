@@ -31,7 +31,7 @@ void checkSHMMessage(shm_message_t* message)
   if(!shm_message_is_empty(*message))
   {
     shm_message_print(*message);
-    /*shm_message_empty(message);*/
+    shm_message_empty(message);
   }
 }
 

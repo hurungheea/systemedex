@@ -22,5 +22,6 @@ clean:
 	rm -f *.o
 
 mrproper:
-	rm -fr $(exec) $(exes)
+	rm -f toto.tok
+	rm -f $(exec) $(exes)
 	rm -f *.o

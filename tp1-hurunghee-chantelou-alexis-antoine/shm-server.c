@@ -11,17 +11,17 @@
 
 int main(int argc, char *argv[])
 {
-  int opt = 0, option_index = 0, sec = 1, id = 1, time=1, daemon = 1,shmGetRes = 0;
+  int opt = 0, option_index = 0, sec = 1, id = 1, times=1, daemon = 1,shmGetRes = 0;
   key_t key = 0;
   shm_message_t* message = NULL;
   char* pathname = "file.ftok";
   static struct option long_options[] =
   {
     {"help", 0, NULL,'h'},
-    {"key-proj-id=", 1, NULL,'i'},
-    {"key-pathname=", 1, NULL,'p'},
-    {"seconds=", 1, NULL,'s'},
-    {"times=", 1, NULL,'t'},
+    {"key-proj-id", 1, NULL,'i'},
+    {"key-pathname", 1, NULL,'p'},
+    {"seconds", 1, NULL,'s'},
+    {"times", 1, NULL,'t'},
     {"version", 1, NULL,'v'},
     {0, 0, 0, 0}
   };
@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
 
       case 't':
         daemon = 0;
-        time = strtol(optarg,NULL,10);
+        times = strtol(optarg,NULL,10);
         break;
     }
   } while(opt != -1);
@@ -67,9 +67,9 @@ int main(int argc, char *argv[])
 
   message = getSHM(&key,&shmGetRes,SERVER);
   if(message == (void*)-1)
-    displayError(NULL,argv[0],__FILE__,__LINE__,message);
+    displayError(NULL,argv[0],__FILE__,__LINE__,key);
 
-  while(time)
+  while(times)
   {
     if(sec == 0)
     {
@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
     {
       sleep(sec);
       if(!daemon)
-        time--;
+        times--;
     }
     checkSHMMessage(message);
   }
