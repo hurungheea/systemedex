@@ -1,11 +1,37 @@
 #include "shm-common.h"
 
+void displayError(void* t, ...)
+{
+  char* toPrint = NULL;
+  va_list args;
+  printf("%d\n",errno);
+  switch (errno)
+  {
+    case 142:
+      toPrint = "%s:%s:%d: Unable to copy the message because the target message is not empty.\n";
+      break;
+    case 2:
+      toPrint = "%s:%s:%d: Unable to create the System V IPC key from the \"%s\"pathname and the \"%d\" project identifier.\n";
+      break;
+    case 22:
+      toPrint = "%s:%s:%d: Unable to get the identifier of the System V shared memory segment from the \"0x%x\" key.\n";
+      break;
+    default:
+      printf("default\n");
+      break;
+  }
+  va_start(args,t);
+  vfprintf(stderr,toPrint,args);
+  va_end(args);
+  exit(1);
+}
+
 void checkSHMMessage(shm_message_t* message)
 {
   if(!shm_message_is_empty(*message))
   {
     shm_message_print(*message);
-    shm_message_empty(message);
+    /*shm_message_empty(message);*/
   }
 }
 
@@ -20,17 +46,14 @@ void waitingForEnter()
   }while(k != 0x0A);
 }
 
-shm_message_t* getSHM(char *pathname, int* id, int* shmGetRes,int client)
+shm_message_t* getSHM(key_t* key, int* shmGetRes,int client)
 {
   shm_message_t* message = NULL;
-  key_t key = ftok(pathname,*id);
   if(client)
-    *shmGetRes = shmget(key,sizeof(shm_message_t),0);
+    *shmGetRes = shmget(*key,sizeof(shm_message_t),0);
   else
-    *shmGetRes = shmget(key,sizeof(shm_message_t),IPC_CREAT|IPC_EXCL|0600);
+    *shmGetRes = shmget(*key,sizeof(shm_message_t),IPC_CREAT|IPC_EXCL|0600);
   message = (shm_message_t*) shmat(*shmGetRes,NULL,0);
-  if(message == (void*)-1)
-    return (void*) -1;
   return message;
 }
 

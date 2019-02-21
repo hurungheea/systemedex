@@ -12,6 +12,7 @@
 int main(int argc, char *argv[])
 {
   int opt = 0, option_index = 0, sec = 1, id = 1, time=1, daemon = 1,shmGetRes = 0;
+  key_t key = 0;
   shm_message_t* message = NULL;
   char* pathname = "file.ftok";
   static struct option long_options[] =
@@ -43,7 +44,7 @@ int main(int argc, char *argv[])
         break;
 
       case 'p':
-        strcpy(pathname,optarg);
+        pathname = optarg;
         break;
 
       case 's':
@@ -60,13 +61,13 @@ int main(int argc, char *argv[])
   printf("proj_id = \"%d\"\n",id);
   printf("pathname = \"%s\"\n",pathname);
 
-  message = getSHM(pathname,&id,&shmGetRes,SERVER);
-  if(message == (void*)-1) /* Si SHMAT return -1 */
-  {
-    printf("pas d'addr SHM\n");
-    shmctl(shmGetRes,IPC_RMID,NULL);
-    exit(1);
-  }
+  key = ftok(pathname,id);
+  if(key == (key_t)-1)
+    displayError(NULL,argv[0],__FILE__,__LINE__,pathname,id);
+
+  message = getSHM(&key,&shmGetRes,SERVER);
+  if(message == (void*)-1)
+    displayError(NULL,argv[0],__FILE__,__LINE__,message);
 
   while(time)
   {

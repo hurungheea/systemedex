@@ -4,7 +4,7 @@ version = -std=c89 -pedantic
 exec = shm-client.out
 exes = shm-server.out
 
-all: $(exes) $(exec)
+all: $(exec) $(exes)
 
 $(exes): shm-common.o shm-message.o
 	$(CC) $(version) $(gflags) -g -o $(exes) shm-server.c shm-common.o shm-message.o

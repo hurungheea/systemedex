@@ -12,6 +12,7 @@
 int main(int argc, char *argv[])
 {
     int opt = 0, option_index = 0, sec = 1, id = 1, time=0, daemon = 1,shmGetRes = 0;
+    key_t key = 0;
     char* pathname = "file.ftok";
     shm_message_t messageTMP;
     shm_message_t* messSHM = NULL;
@@ -47,7 +48,7 @@ int main(int argc, char *argv[])
         break;
 
       case 'p':
-        strcpy(pathname,optarg);
+        pathname = optarg;
         break;
 
       case 's':
@@ -76,19 +77,21 @@ int main(int argc, char *argv[])
     printf("proj_id = \"%d\"\n",id);
     printf("pathname = \"%s\"\n",pathname);
 
-    messSHM = getSHM(pathname,&id,&shmGetRes,CLIENT);
-    if(messSHM   == (void*)-1) /* Si SHMAT return -1 */
-    {
-      printf("pas d'addr SHM\n");
-      shmctl(shmGetRes,IPC_RMID,NULL);
-      exit(1);
-    }
+    key = ftok(pathname,id);
+    if(key == (key_t)-1)
+      displayError(NULL,argv[0],__FILE__,__LINE__,pathname,id);
+
+    messSHM = getSHM(&key,&shmGetRes,CLIENT);
+    if(messSHM == (void*)-1)
+      displayError(NULL,argv[0],__FILE__,__LINE__,messSHM);
 
     /* shm_message_copy(messageTMP,messSHM); */
 
     while(time)
     {
-      shm_message_copy(messageTMP,messSHM);
+      if(shm_message_copy(messageTMP,messSHM)!=0)
+        displayError(NULL,argv[0],__FILE__,__LINE__);
+
       shm_message_print(messageTMP);
       if(time == 0)
         break;
