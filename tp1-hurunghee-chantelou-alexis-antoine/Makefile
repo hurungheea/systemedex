@@ -6,16 +6,16 @@ exes = shm-server.out
 
 all: $(exec) $(exes)
 
-$(exes): shm-common.o shm-message.o
+$(exes): shm-server.c shm-common.o shm-message.o
 	$(CC) $(version) $(gflags) -g -o $(exes) shm-server.c shm-common.o shm-message.o
 
-$(exec): shm-message.o shm-common.o
+$(exec): shm-client.c  shm-common.o shm-message.o
 	$(CC) $(version) $(gflags) -g -o $(exec) shm-client.c shm-common.o shm-message.o
 
-shm-message.o:
+shm-message.o: shm-message.c
 	$(CC) $(version) $(gflags) -g -c -o shm-message.o shm-message.c
 
-shm-common.o:
+shm-common.o: shm-common.c
 	$(CC) $(version) $(gflags) -g -c -o shm-common.o shm-common.c
 
 clean:
