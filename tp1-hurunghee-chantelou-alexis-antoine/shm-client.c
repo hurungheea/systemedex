@@ -32,7 +32,6 @@ int main(int argc, char *argv[])
     };
     global_argv = malloc(sizeof(char) * strlen(argv[0]));
     global_argv = argv[0];
-
     shm_message_set_name(&messageTMP,"Default name");
     shm_message_set_text(&messageTMP,"This is the default message text");
   do

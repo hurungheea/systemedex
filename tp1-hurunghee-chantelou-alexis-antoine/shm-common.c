@@ -4,11 +4,10 @@ void displayError(void* t,...)
 {
   char* toPrint = NULL;
   va_list args;
-  printf("%d\n",errno);
   switch(errno)
   {
     case 2:
-      toPrint = "%s:%s:%d: Unable to create the System V IPC key from the \"%s\"pathname and the \"%d\" project identifier.\n";
+      toPrint = "%s:%s:%d: Unable to create the System V IPC key from the \"%s\" pathname and the \"%d\" project identifier.\n";
       break;
 
     case 22:
@@ -24,11 +23,11 @@ void displayError(void* t,...)
       break;
 
     case 160:
-      toPrint = "%s:%s:%d: \n";
+      toPrint = "%s:%s:%d: Unable to set the \"%s\" message text because its \"%d\" is greater than \"64\".\n";
       break;
 
     case 170:
-      toPrint = "%s:%s:%d: Unable to set the \"%s\" message text because its \"%d\" is greater than \"64\".\n";
+      toPrint = "%s:%s:%d: Unable to set the \"%s\" message name because its \"%d\" is greater than \"16\".\n";
       break;
 
     default:
@@ -57,7 +56,6 @@ void waitingForEnter()
   {
     printf("Press the Enter key to continue... ");
     k = getchar();
-    printf("\n");
   }while(k != 0x0A);
 }
 

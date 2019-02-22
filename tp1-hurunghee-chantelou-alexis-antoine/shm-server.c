@@ -29,7 +29,6 @@ int main(int argc, char *argv[])
   };
   global_argv = malloc(sizeof(char) * strlen(argv[0]));
   global_argv = argv[0];
-  printf("%s\n", );
   do
   {
     opt = getopt_long(argc,argv,"hvi:p:s:t:",long_options,&option_index);
