@@ -84,7 +84,10 @@ void afficheHelp(char **argv, int client)
     printf("\t -n, --message-name=NAME\n\t\tset the message name to NAME (the default value is \"Default name\")\n");
   printf("\t -p, --key-pathname=PATHNAME\n\t\tset the key pathname to PATHNAME (the default value is \"file.ftok\")\n");
   printf("\t -s, --seconds=SECONDS\n\t\tset the seconds between each try (the default value is \"1\"), a value less than or equal to 0 enables the interactive mode where the input stream is read\n");
-  printf("\t -t, --times=TIMES\n\t\tset the number of times this program tries to receive a message (the default value is \"-1\"),a negative value means repeat for ever\n");
+  if(client)
+    printf("\t -t, --times=TIMES\n\t\tset the number of times this program tries to receive a message (the default value is \"1\"),a negative value means repeat for ever\n");
+  else
+    printf("\t -t, --times=TIMES\n\t\tset the number of times this program tries to receive a message (the default value is \"-1\"),a negative value means repeat for ever\n");
   printf("\t -v, --version\n\t\t output version information and exit\n");
   if(client)
     printf("\t -x, --message-text=TEXT\n\t\tset the message text to TEXT (the default value is \"This is the default message text\")\n");

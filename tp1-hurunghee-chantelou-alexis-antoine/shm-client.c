@@ -61,6 +61,8 @@ int main(int argc, char *argv[])
 
       case 't':
         daemon = 0;
+        if(strtol(optarg,NULL,10)<0)
+          times = 1;
         times = strtol(optarg,NULL,10);
         break;
 
@@ -90,7 +92,7 @@ int main(int argc, char *argv[])
       displayError(NULL,argv[0],__FILE__,__LINE__,key);
 
     shm_message_copy(messageTMP,messSHM);
-    shm_message_print(messageTMP);
+  /*  shm_message_print(messageTMP);*/
 
     while(times)
     {
@@ -102,11 +104,11 @@ int main(int argc, char *argv[])
       }
 
       shm_message_print(messageTMP);
-      if(times == 0)
-        break;
       if(!daemon)
         times--;
-      if(sec == 0)
+      if(times == 0)
+        break;
+      if(sec == 0 || times < 0)
       {
         daemon = 0;
         waitingForEnter();
