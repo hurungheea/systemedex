@@ -9,6 +9,8 @@
 #include "shm-message.h"
 #include "shm-common.h"
 
+char* global_argv;
+
 int main(int argc, char *argv[])
 {
   int opt = 0, option_index = 0, sec = 1, id = 1, times=1, daemon = 1,shmGetRes = 0;
@@ -25,7 +27,9 @@ int main(int argc, char *argv[])
     {"version", 1, NULL,'v'},
     {0, 0, 0, 0}
   };
-
+  global_argv = malloc(sizeof(char) * strlen(argv[0]));
+  global_argv = argv[0];
+  printf("%s\n", );
   do
   {
     opt = getopt_long(argc,argv,"hvi:p:s:t:",long_options,&option_index);

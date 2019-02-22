@@ -9,6 +9,8 @@
 #include "shm-message.h"
 #include "shm-common.h"
 
+char* global_argv;
+
 int main(int argc, char *argv[])
 {
     int opt = 0, option_index = 0, sec = 1, id = 1, times=0, daemon = 1,shmGetRes = 0;
@@ -28,6 +30,9 @@ int main(int argc, char *argv[])
       {"message-text", 1, NULL,'x'},
       {0, 0, 0, 0}
     };
+    global_argv = malloc(sizeof(char) * strlen(argv[0]));
+    global_argv = argv[0];
+
     shm_message_set_name(&messageTMP,"Default name");
     shm_message_set_text(&messageTMP,"This is the default message text");
   do

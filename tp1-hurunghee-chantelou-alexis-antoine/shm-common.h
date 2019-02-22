@@ -13,6 +13,8 @@
 #define CLIENT 1
 #define SERVER 0
 
+extern char* global_argv;
+
 void waitingForEnter();
 void displayError(void* t, ...);
 void afficheVersion(char **argv);

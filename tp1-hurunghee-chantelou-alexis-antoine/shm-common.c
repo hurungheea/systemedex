@@ -1,6 +1,6 @@
 #include "shm-common.h"
 
-void displayError(void* t, ...)
+void displayError(void* t,...)
 {
   char* toPrint = NULL;
   va_list args;

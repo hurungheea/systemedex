@@ -1,16 +1,20 @@
 #include <time.h>
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
+#include "shm-common.h"
 #include "shm-message.h"
+
+char* global_argv;
 
 int shm_message_set_name(shm_message_t *message, const char *name)
 {
   if((strlen(name)) > SHM_MESSAGE_NAME_SIZE)
   {
     errno = 170;
-    displayError(NULL,argv[0],__FILE__,__LINE__,message->name,strlen(message->name));
+    displayError(NULL,global_argv,__FILE__,__LINE__,message->name,strlen(message->name));
     return -1;
-  }
+  }else
   strcpy(message->name, name);
   return 0;
 }
@@ -36,7 +40,7 @@ int shm_message_set_text(shm_message_t *message, const char *text)
 {
   if(strlen(text) > SHM_MESSAGE_TEXT_SIZE)
   {
-    displayError(NULL,argv[0],__FILE__,__LINE__,message->text,strlen(message->text));
+    displayError(NULL,global_argv[0],__FILE__,__LINE__,message->text,strlen(message->text));
     return -1;
   }
   strcpy(message->text,text);
@@ -45,7 +49,7 @@ int shm_message_set_text(shm_message_t *message, const char *text)
 
 int shm_message_copy(shm_message_t message_source, shm_message_t* message_target)
 {
-  if(shm_message_is_empty()==0)
+  if(shm_message_is_empty(message_source)==-1)
   {
     errno = 142;
     return -1;
