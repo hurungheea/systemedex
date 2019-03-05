@@ -91,8 +91,8 @@ int main(int argc, char *argv[])
     if(messSHM == (void*)-1)
       displayError(NULL,argv[0],__FILE__,__LINE__,key);
 
-    /*shm_message_copy(messageTMP,messSHM);*/
-  /*  shm_message_print(messageTMP);*/
+    shm_message_copy(messageTMP,messSHM);
+    shm_message_print(messageTMP);
 
     while(times)
     {

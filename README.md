@@ -1,4 +1,4 @@
 # systemedex
 `
-  Ce repo conserne les TPs
+  Ce repo concerne les TPs de Système d'exploitation
 `

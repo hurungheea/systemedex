@@ -31,7 +31,7 @@ void displayError(void* t,...)
       break;
 
     default:
-      printf("default\n");
+      fprintf(stderr,"Unknown error : %d\n",errno);
       break;
   }
   va_start(args,t);
