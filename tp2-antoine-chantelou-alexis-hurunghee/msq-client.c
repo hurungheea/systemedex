@@ -13,7 +13,7 @@ char* global_argv;
 
 int main(int argc, char *argv[])
 {
-  int opt = 0, option_index = 0,id = 1,requests;
+  int opt = 0, option_index = 0,id = 1,requests,sec = 1,times = 1;
   char* pathname = "file.ftok";
   key_t key;
   msq_message_t messTMP;
@@ -55,11 +55,11 @@ int main(int argc, char *argv[])
         break;
 
       case 's':
-          /*sec = strtol(optarg,NULL,10);*/
+          sec = strtol(optarg,NULL,10);
         break;
 
       case 't':
-        /*times = strtol(optarg,NULL,10);*/
+        times = strtol(optarg,NULL,10);
         break;
 
 
@@ -86,13 +86,17 @@ int main(int argc, char *argv[])
   key =ftok(pathname,id);
   if(key == (key_t)-1)
     displayError(NULL,argv[0],__FILE__,__LINE__,pathname,id);
-printf("%d\n",(int)key);
+
   requests = msgget(key,0);
   if(requests == -1)
     displayError(NULL,argv[0],__FILE__,__LINE__,key);
 
-
   msq_message_print(messTMP);
+
+  while(time)
+  {
+
+  }
 
   return 0;
 }
