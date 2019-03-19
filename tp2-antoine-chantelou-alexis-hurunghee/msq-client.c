@@ -69,7 +69,11 @@ int main(int argc, char *argv[])
 
       case 'y':
         if(msq_message_set_type(&messTMP,strtol(optarg,NULL,10)) == -1)
+        {
+          displayError(NULL,argv[0],"msq-message.c",__LINE__,strtol(optarg,NULL,10));
+          errno = 521;
           displayError(NULL,argv[0],__FILE__,__LINE__,strtol(optarg,NULL,10));
+        }
         break;
 
       case '?':
@@ -95,14 +99,14 @@ int main(int argc, char *argv[])
 
   while(times > 0)
   {
+    msgsnd(requests,&messTMP,sizeof(messTMP),0);
+    msq_message_print(messTMP);
     if(sec == 0)
       waitingForEnter();
     else
     {
-      if(times > 1)
+      if(times > 1 && times != 0)
         sleep(sec);
-      msgsnd(requests,&messTMP,sizeof(messTMP),0);
-      msq_message_print(messTMP);
     }
     if(times > 0)
       times--;

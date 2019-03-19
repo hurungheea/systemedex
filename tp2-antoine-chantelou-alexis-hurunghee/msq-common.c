@@ -3,8 +3,8 @@
 void displayError(void* t,...)
 {
   char* toPrint = NULL;
+  int sortir = 1;
   va_list args;
-  printf("errno --> : %d\n",errno);
   switch(errno)
   {
     case 2:
@@ -28,7 +28,12 @@ void displayError(void* t,...)
       break;
 
     case 520:
+      sortir = 0;
       toPrint = "%s:%s:%d: Unable to set the \"%d\" message type because its value is less than or equal to \"0\".\n";
+      break;
+
+    case 521:
+      toPrint = "%s:%s:%d: Unable to set the \"%d\" message type.\n";
       break;
 
     default:
@@ -38,7 +43,8 @@ void displayError(void* t,...)
   va_start(args,t);
   vfprintf(stderr,toPrint,args);
   va_end(args);
-  exit(1);
+  if(sortir)
+    exit(1);
 }
 
 int getMsg(key_t key,int client)
