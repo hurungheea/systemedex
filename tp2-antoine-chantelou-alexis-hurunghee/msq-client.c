@@ -62,7 +62,6 @@ int main(int argc, char *argv[])
         times = strtol(optarg,NULL,10);
         break;
 
-
       case 'x':
         if(msq_message_set_text(&messTMP,optarg) == -1)
           displayError(NULL,argv[0],__FILE__,__LINE__,optarg,strlen(optarg),MSQ_MESSAGE_TEXT_SIZE);
@@ -83,20 +82,30 @@ int main(int argc, char *argv[])
   printf("proj_id = \"%d\"\n",id);
   printf("pathname = \"%s\"\n",pathname);
 
-  key =ftok(pathname,id);
+  key = ftok(pathname,id);
   if(key == (key_t)-1)
     displayError(NULL,argv[0],__FILE__,__LINE__,pathname,id);
 
   requests = msgget(key,0);
   if(requests == -1)
-    displayError(NULL,argv[0],__FILE__,__LINE__,key);
-
-  msq_message_print(messTMP);
-
-  while(time)
   {
-
+    errno = 17;
+    displayError(NULL,argv[0],__FILE__,__LINE__,pathname,id);
   }
 
+  while(times > 0)
+  {
+    if(sec == 0)
+      waitingForEnter();
+    else
+    {
+      if(times > 1)
+        sleep(sec);
+      msgsnd(requests,&messTMP,sizeof(messTMP),0);
+      msq_message_print(messTMP);
+    }
+    if(times > 0)
+      times--;
+  }
   return 0;
 }

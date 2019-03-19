@@ -57,6 +57,10 @@ int main(int argc, char *argv[])
       case 't':
         times = strtol(optarg,NULL,10);
         break;
+
+      case '?':
+          exit(1);
+        break;
     }
   } while(opt != -1);
 
