@@ -13,7 +13,8 @@ char* global_argv;
 
 int main(int argc, char *argv[])
 {
-  int opt = 0, option_index = 0,times=-1,sec = 1,id = 1,request,response = 0,res;
+  int opt = 0, option_index = 0,times=-1,sec = 1,id = 1,request,res;
+  key_t key;
   char* pathname = "file.ftok";
   msq_message_t messTMP;
   static struct option long_options[] =
@@ -34,7 +35,7 @@ int main(int argc, char *argv[])
     switch(opt)
     {
       case 'h':
-        afficheHelp(argv,0);
+        afficheHelp(argv,SERVER);
         break;
 
       case 'v':
@@ -62,30 +63,26 @@ int main(int argc, char *argv[])
   printf("proj_id = \"%d\"\n",id);
   printf("pathname = \"%s\"\n",pathname);
 
-  request = msgget(ftok(pathname,id),IPC_CREAT|0600);
-  if(request == -1)
-  {
-    displayError(NULL);
-  }
+  key = ftok(pathname,id);
+  if(key == (key_t)-1)
+    displayError(NULL,argv[0],__FILE__,__LINE__,pathname,id);
 
-  response = msgget(ftok(pathname,id),IPC_CREAT|0600);
-  if(response == -1)
-  {
-    displayError(NULL);
-  }
+  request = msgget(key,IPC_CREAT|IPC_EXCL|0600);
+  if(request == -1)
+    displayError(NULL,argv[0],__FILE__,__LINE__,(int)key);
 
   while(times!=0)
   {
-    sleep(sec);
-    printf("sec : %d, time : %d\n",sec,times);
+    if(sec == 0)
+      waitingForEnter();
+    else
+      sleep(sec);
+    if(times > 0)
+      times--;
     res = msgrcv(request,&messTMP,sizeof(messTMP),0,IPC_NOWAIT);
     if(res > 0)
       msq_message_print(messTMP);
-    if(times > 0)
-    {
-      times--;
-    }
   }
-
+  msgctl(request,IPC_RMID,NULL);
   return 0;
 }

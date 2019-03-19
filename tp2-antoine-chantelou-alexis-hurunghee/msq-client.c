@@ -13,8 +13,9 @@ char* global_argv;
 
 int main(int argc, char *argv[])
 {
-  int opt = 0, option_index = 0,times=1,sec = 0,id = 1,request,response = 0,res;
+  int opt = 0, option_index = 0,id = 1,requests;
   char* pathname = "file.ftok";
+  key_t key;
   msq_message_t messTMP;
   static struct option long_options[] =
   {
@@ -24,17 +25,21 @@ int main(int argc, char *argv[])
     {"seconds", 1, NULL,'s'},
     {"times", 1, NULL,'t'},
     {"version", 1, NULL,'v'},
+    {"message-text", 1, NULL,'x'},
+    {"message-type", 1, NULL,'y'},
     {0, 0, 0, 0}
   };
   global_argv = malloc(sizeof(char) * strlen(argv[0]));
   global_argv = argv[0];
+  msq_message_set_text(&messTMP,"This is the default message text");
+  msq_message_set_type(&messTMP,1);
   do
   {
-    opt = getopt_long(argc,argv,"hvi:p:s:t:",long_options,&option_index);
+    opt = getopt_long(argc,argv,"hvi:p:s:t:x:y:",long_options,&option_index);
     switch(opt)
     {
       case 'h':
-        afficheHelp(argv,0);
+        afficheHelp(argv,CLIENT);
         break;
 
       case 'v':
@@ -50,48 +55,44 @@ int main(int argc, char *argv[])
         break;
 
       case 's':
-          sec = strtol(optarg,NULL,10);
+          /*sec = strtol(optarg,NULL,10);*/
         break;
 
       case 't':
-        times = strtol(optarg,NULL,10);
+        /*times = strtol(optarg,NULL,10);*/
+        break;
+
+
+      case 'x':
+        if(msq_message_set_text(&messTMP,optarg) == -1)
+          displayError(NULL,argv[0],__FILE__,__LINE__,optarg,strlen(optarg),MSQ_MESSAGE_TEXT_SIZE);
+        break;
+
+      case 'y':
+        if(msq_message_set_type(&messTMP,strtol(optarg,NULL,10)) == -1)
+          displayError(NULL,argv[0],__FILE__,__LINE__,strtol(optarg,NULL,10));
+        break;
+
+      case '?':
+          exit(1);
         break;
     }
   } while(opt != -1);
-  msq_message_set_text(&messTMP,"i'm a fucking idiot");
-  msq_message_set_type(&messTMP,1);
 
 
   printf("proj_id = \"%d\"\n",id);
   printf("pathname = \"%s\"\n",pathname);
 
-  request = msgget(ftok(pathname,id),IPC_CREAT|0600);
-  if(request == -1)
-  {
-    displayError(NULL);
-  }
+  key =ftok(pathname,id);
+  if(key == (key_t)-1)
+    displayError(NULL,argv[0],__FILE__,__LINE__,pathname,id);
+printf("%d\n",(int)key);
+  requests = msgget(key,0);
+  if(requests == -1)
+    displayError(NULL,argv[0],__FILE__,__LINE__,key);
 
-  response = msgget(ftok(pathname,id),IPC_CREAT|0600);
-  if(response == -1)
-  {
-    displayError(NULL);
-  }
 
   msq_message_print(messTMP);
-
-  while(times!=0)
-  {
-    sleep(sec);
-    res = msgsnd(request,&messTMP,MSQ_MESSAGE_TEXT_SIZE+1,0);
-    if (res == -1)
-    {
-      printf("msgrcv");
-    }
-    if(times>0)
-    {
-      times--;
-    }
-  }
 
   return 0;
 }

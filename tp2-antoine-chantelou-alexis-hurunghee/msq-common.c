@@ -4,14 +4,14 @@ void displayError(void* t,...)
 {
   char* toPrint = NULL;
   va_list args;
-  printf("%d\n",errno);
+  printf("errno --> : %d\n",errno);
   switch(errno)
   {
     case 2:
       toPrint = "%s:%s:%d: Unable to create the System V IPC key from the \"%s\" pathname and the \"%d\" project identifier.\n";
       break;
 
-    case 22:
+    case 17:
       toPrint = "%s:%s:%d: Unable to get the identifier of the System V shared memory segment from the \"0x%x\" key.\n";
       break;
 
@@ -23,12 +23,12 @@ void displayError(void* t,...)
       toPrint = "%s:%s:%d: Unable to copy the message.\n";
       break;
 
-    case 160:
-      toPrint = "%s:%s:%d: Unable to set the \"%s\" message text because its \"%d\" is greater than \"64\".\n";
+    case 510:
+      toPrint = "%s:%s:%d: Unable to set the \"%s\" message text because its \"%d\" is greater than \"%d\".\n";
       break;
 
-    case 170:
-      toPrint = "%s:%s:%d: Unable to set the \"%s\" message name because its \"%d\" is greater than \"16\".\n";
+    case 520:
+      toPrint = "%s:%s:%d: Unable to set the \"%d\" message type because its value is less than or equal to \"0\".\n";
       break;
 
     default:
@@ -75,7 +75,7 @@ void afficheHelp(char **argv, int client)
   printf("\t -p, --key-pathname=PATHNAME\n\t\tset the key pathname to PATHNAME (the default value is \"file.ftok\")\n");
   printf("\t -s, --seconds=SECONDS\n\t\tset the seconds between each try (the default value is \"1\", a value less than or equal to 0 enables the interactive mode where the input stream is read)\n");
   if(client)
-    printf("\t -t, --times=TIMES\n\t\tset the number of times this program tries to receive a message (the default value is \"1\",a negative value means repeat for ever)\n");
+    printf("\t -t, --times=TIMES\n\t\tset the number of times this program tries to send a message (the default value is \"1\",a negative value means repeat for ever)\n");
   else
     printf("\t -t, --times=TIMES\n\t\tset the number of times this program tries to receive a message (the default value is \"-1\",a negative value means repeat for ever)\n");
   printf("\t -v, --version\n\t\t output version information and exit\n");

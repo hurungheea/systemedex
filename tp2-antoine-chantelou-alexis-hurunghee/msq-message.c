@@ -27,7 +27,10 @@ void msq_message_print(msq_message_t message)
 int msq_message_set_text(msq_message_t *message, const char *text)
 {
   if(strlen(text)>MSQ_MESSAGE_TEXT_SIZE)
+  {
+    errno = 510;
     return -1;
+  }
   strcpy(message->text,text);
   return 0;
 }
@@ -40,7 +43,10 @@ int msq_message_set_text(msq_message_t *message, const char *text)
 int msq_message_set_type(msq_message_t *message, long int type)
 {
   if(type <= 0)
+  {
+    errno = 520;
     return -1;
+  }
   message->type = type;
   return 0;
 }
