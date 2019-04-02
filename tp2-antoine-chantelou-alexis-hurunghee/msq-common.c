@@ -4,6 +4,7 @@ void displayError(void* t, ...)
 {
   char* toPrint = NULL;
   va_list args;
+  int sortie = 1;
   switch(errno)
   {
     case 2:
@@ -27,6 +28,7 @@ void displayError(void* t, ...)
       break;
 
     case 520:
+      sortie = 0;
       toPrint = "%s:%s:%d: Unable to set the \"%d\" message type because its value is less than or equal to \"0\".\n";
       break;
 
@@ -49,7 +51,8 @@ void displayError(void* t, ...)
   va_start(args, t);
   vfprintf(stderr, toPrint,args);
   va_end(args);
-  exit(EXIT_FAILURE);
+  if(sortie)
+    exit(EXIT_FAILURE);
 }
 
 void waitingForEnter()
@@ -85,7 +88,7 @@ void afficheHelp(char **argv, int client)
     printf("\t -y, --message-type=TYPE\n\t\t set the message type to TYPE (the default value is \"1\")\n");
   }
   printf("\nReport bugs to Antoine Chantelou <achantelou@etud.univ-pau.fr> and Alexis Hurunghee <ahurunchee@etud.univ-pau.fr>.\n");
-  exit(0);
+  exit(EXIT_SUCCESS);
 }
 
 void afficheVersion(char **argv)
@@ -93,7 +96,7 @@ void afficheVersion(char **argv)
   printf("msq-server 1.0.0\n\n");
   printf("Copyright (C) 2019 Antoine Chantelou and Alexis Hurunghee.\n\n");
   printf("Written by Antoine Chantelou <achantelou@etud.univ-pau.fr> and Alexis Hurunghee <ahurunchee@etud.univ-pau.fr>.\n");
-  exit(0);
+  exit(EXIT_SUCCESS);
 }
 
 void argumentFromServer(int argc, char **argv, char* optOptions, int* option_index, int* id, char** pathname,int* sec, int* times)
@@ -171,6 +174,7 @@ void argumentFromClient(int argc, char **argv, char* optOptions, int* option_ind
 
   do
   {
+    opterr = 0;
     opt = getopt_long(argc, argv, ":hvi:p:s:t:x:y:", long_options, option_index);
     switch(opt)
     {
