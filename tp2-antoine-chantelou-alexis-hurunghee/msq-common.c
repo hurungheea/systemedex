@@ -1,10 +1,10 @@
 #include "msq-common.h"
 
-void displayError(void* t,...)
+void displayError(void* t, ...)
 {
   char* toPrint = NULL;
-  int sortir = 1;
   va_list args;
+  printf("errno --> %d\n",errno);
   switch(errno)
   {
     case 2:
@@ -28,7 +28,6 @@ void displayError(void* t,...)
       break;
 
     case 520:
-      sortir = 0;
       toPrint = "%s:%s:%d: Unable to set the \"%d\" message type because its value is less than or equal to \"0\".\n";
       break;
 
@@ -36,26 +35,22 @@ void displayError(void* t,...)
       toPrint = "%s:%s:%d: Unable to set the \"%d\" message type.\n";
       break;
 
+    case 522:
+      toPrint = "%s:%s:%d: Unknown option \"-%c\".\n";
+      break;
+
+    case 523:
+      toPrint = "%s:%s:%d: Argument is missing in the \"-%c\" option.\n";
+      break;
+
     default:
       fprintf(stderr,"Unknown error : %d\n",errno);
       break;
   }
-  va_start(args,t);
-  vfprintf(stderr,toPrint,args);
+  va_start(args, t);
+  vfprintf(stderr, toPrint,args);
   va_end(args);
-  if(sortir)
-    exit(1);
-}
-
-int getMsg(key_t key,int client)
-{
-  int msg;
-  msg = msgget(key,IPC_CREAT| 0600);
-  if(msg == -1)
-  {
-    displayError(NULL);
-  }
-  return msg;
+  exit(EXIT_FAILURE);
 }
 
 void waitingForEnter()
@@ -70,7 +65,7 @@ void waitingForEnter()
 
 void afficheHelp(char **argv, int client)
 {
-  printf("Usage: %s [OPTION]...\n",argv[0]);
+  printf("Usage: %s [OPTION]...\n", argv[0]);
   if(client)
     printf("Send a message to a server through a message queue.\n \n");
   else
@@ -100,4 +95,61 @@ void afficheVersion(char **argv)
   printf("Copyright (C) 2019 Antoine Chantelou and Alexis Hurunghee.\n\n");
   printf("Written by Antoine Chantelou <achantelou@etud.univ-pau.fr> and Alexis Hurunghee <ahurunchee@etud.univ-pau.fr>.\n");
   exit(0);
+}
+
+void argumentFromServer(int argc,char **argv,char* optOptions, int* option_index, int* id, char* pathname,int *sec, int* times)
+{
+  int opt = 0;
+  static struct option long_options[] =
+  {
+    {"help",  0,  NULL, 'h'},
+    {"key-proj-id",  1,  NULL, 'i'},
+    {"key-pathname",  1,  NULL, 'p'},
+    {"seconds",  1,  NULL, 's'},
+    {"times",  1,  NULL, 't'},
+    {"version",  1,  NULL, 'v'},
+    {0,  0,  0,  0}
+  };
+
+  do
+  {
+    opterr = 0;
+    opt = getopt_long(argc, argv, optOptions, long_options, option_index);
+    switch(opt)
+    {
+      case 'h':
+        afficheHelp(argv, SERVER);
+        break;
+
+      case 'v':
+        afficheVersion(argv);
+        break;
+
+      case 'i':
+        *id  = strtol(optarg, NULL, 10);
+        break;
+
+      case 'p':
+        pathname = optarg;
+        break;
+
+      case 's':
+        *sec = strtol(optarg, NULL, 10);
+        break;
+
+      case 't':
+        *times = strtol(optarg, NULL, 10);
+        break;
+
+      case '?':
+        errno = 522;
+        displayError(NULL, argv[0], __FILE__, __LINE__,argv[1][1]);
+        break;
+
+      case ':':
+        errno = 523;
+        displayError(NULL, argv[0], __FILE__, __LINE__,argv[1][1]);
+        break;
+    }
+  } while(opt != -1);
 }
