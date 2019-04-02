@@ -13,18 +13,18 @@ char* global_argv;
 
 int main(int argc,  char *argv[])
 {
-  int request, res, option_index = 0, times = -1, sec = 1, id = 1;
-  char* pathname = "file.ftok";
-  msq_message_t messTMP;
   key_t key;
+  int times = -1;
+  int sec = 1, id = 1;
+  msq_message_t messTMP;
+  char* pathname = "file.ftok";
+  int request = 0, res = 0, option_index = 0;
 
   global_argv = malloc(sizeof(char) * strlen(argv[0]));
   global_argv = argv[0];
 
-  argumentFromServer(argc,argv,":hvi:p:s:t:",&option_index,&id,pathname,&times,&sec);
-  /*
-    Appelle PROF pathname
-  */
+  argumentFromServer(argc,argv,":hvi:p:s:t:", &option_index, &id, &pathname, &sec, &times);
+
   printf("proj_id = \"%d\"\n", id);
   printf("pathname = \"%s\"\n", pathname);
 

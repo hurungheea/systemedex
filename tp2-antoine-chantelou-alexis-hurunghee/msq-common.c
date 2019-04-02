@@ -4,7 +4,6 @@ void displayError(void* t, ...)
 {
   char* toPrint = NULL;
   va_list args;
-  printf("errno --> %d\n",errno);
   switch(errno)
   {
     case 2:
@@ -12,7 +11,7 @@ void displayError(void* t, ...)
       break;
 
     case 17:
-      toPrint = "%s:%s:%d: Unable to get the identifier of the System V shared memory segment from the \"0x%x\" key.\n";
+      toPrint = "%s:%s:%d: Unable to get the identifier of the System V message queue from the \"0x%x\" key.\n";
       break;
 
     case 140:
@@ -69,21 +68,21 @@ void afficheHelp(char **argv, int client)
   if(client)
     printf("Send a message to a server through a message queue.\n \n");
   else
-    printf("Receive messages from clients through shared memory.\n \n");
+    printf("Receive messages from clients through a message queue.\n \n");
   printf("Options:\n");
-  printf("\t -h, --help\n\t\tdisplay this help and exit\n");
-  printf("\t -i, --key-proj-id=PROJ_ID\n\t\tset the key project identifier to PROJ_ID (the default value is \"1\")\n");
-  printf("\t -p, --key-pathname=PATHNAME\n\t\tset the key pathname to PATHNAME (the default value is \"file.ftok\")\n");
-  printf("\t -s, --seconds=SECONDS\n\t\tset the seconds between each try (the default value is \"1\", a value less than or equal to 0 enables the interactive mode where the input stream is read)\n");
+  printf("\t -h, --help\n\t\t display this help and exit\n");
+  printf("\t -i, --key-proj-id=PROJ_ID\n\t\t set the key project identifier to PROJ_ID (the default value is \"1\")\n");
+  printf("\t -p, --key-pathname=PATHNAME\n\t\t set the key pathname to PATHNAME (the default value is \"file.ftok\")\n");
+  printf("\t -s, --seconds=SECONDS\n\t\t set the seconds between each try (the default value is \"1\", a value less than or equal to 0 enables the interactive mode where the input stream is read)\n");
   if(client)
-    printf("\t -t, --times=TIMES\n\t\tset the number of times this program tries to send a message (the default value is \"1\",a negative value means repeat for ever)\n");
+    printf("\t -t, --times=TIMES\n\t\t set the number of times this program tries to send a message (the default value is \"1\", a negative value means repeat for ever)\n");
   else
-    printf("\t -t, --times=TIMES\n\t\tset the number of times this program tries to receive a message (the default value is \"-1\",a negative value means repeat for ever)\n");
-  printf("\t -v, --version\n\t\t output version information and exit\n");
+    printf("\t -t, --times=TIMES\n\t\t set the number of times this program tries to receive a message (the default value is \"-1\", a negative value means repeat for ever)\n");
+  printf("\t -v, --version\n\t\t  output version information and exit\n");
   if(client)
   {
-    printf("\t -x, --message-text=TEXT\n\t\tset the message text to TEXT (the default value is \"This is the default message text\")\n");
-    printf("\t -y, --message-type=TYPE\n\t\tset the message type to TYPE (the default value is \"1\")\n");
+    printf("\t -x, --message-text=TEXT\n\t\t set the message text to TEXT (the default value is \"This is the default message text\")\n");
+    printf("\t -y, --message-type=TYPE\n\t\t set the message type to TYPE (the default value is \"1\")\n");
   }
   printf("\nReport bugs to Antoine Chantelou <achantelou@etud.univ-pau.fr> and Alexis Hurunghee <ahurunchee@etud.univ-pau.fr>.\n");
   exit(0);
@@ -97,7 +96,7 @@ void afficheVersion(char **argv)
   exit(0);
 }
 
-void argumentFromServer(int argc,char **argv,char* optOptions, int* option_index, int* id, char* pathname,int *sec, int* times)
+void argumentFromServer(int argc, char **argv, char* optOptions, int* option_index, int* id, char** pathname,int* sec, int* times)
 {
   int opt = 0;
   static struct option long_options[] =
@@ -130,7 +129,7 @@ void argumentFromServer(int argc,char **argv,char* optOptions, int* option_index
         break;
 
       case 'p':
-        pathname = optarg;
+        *pathname = optarg;
         break;
 
       case 's':
@@ -139,6 +138,78 @@ void argumentFromServer(int argc,char **argv,char* optOptions, int* option_index
 
       case 't':
         *times = strtol(optarg, NULL, 10);
+        break;
+
+      case '?':
+        errno = 522;
+        displayError(NULL, argv[0], __FILE__, __LINE__,argv[1][1]);
+        break;
+
+      case ':':
+        errno = 523;
+        displayError(NULL, argv[0], __FILE__, __LINE__,argv[1][1]);
+        break;
+    }
+  } while(opt != -1);
+}
+
+void argumentFromClient(int argc, char **argv, char* optOptions, int* option_index, int* id, char** pathname,int* sec, int* times, msq_message_t* messTMP)
+{
+  int opt = 0;
+  static struct option long_options[] =
+  {
+    {"help",  0,  NULL, 'h'},
+    {"key-proj-id",  1,  NULL, 'i'},
+    {"key-pathname",  1,  NULL, 'p'},
+    {"seconds",  1,  NULL, 's'},
+    {"times",  1,  NULL, 't'},
+    {"version",  1,  NULL, 'v'},
+    {"message-text",  1,  NULL, 'x'},
+    {"message-type",  1,  NULL, 'y'},
+    {0,  0,  0,  0}
+  };
+
+  do
+  {
+    opt = getopt_long(argc, argv, ":hvi:p:s:t:x:y:", long_options, option_index);
+    switch(opt)
+    {
+      case 'h':
+        afficheHelp(argv, CLIENT);
+        break;
+
+      case 'v':
+        afficheVersion(argv);
+        break;
+
+      case 'i':
+        *id  = strtol(optarg, NULL, 10);
+        break;
+
+      case 'p':
+        *pathname = optarg;
+        break;
+
+      case 's':
+        *sec = strtol(optarg, NULL, 10);
+        break;
+
+      case 't':
+        *times = strtol(optarg, NULL, 10);
+        break;
+
+      case 'x':
+        if(msq_message_set_text(messTMP, optarg) == -1)
+          displayError(NULL, argv[0], __FILE__, __LINE__, optarg, strlen(optarg), MSQ_MESSAGE_TEXT_SIZE);
+        break;
+
+      case 'y':
+        if(msq_message_set_type(messTMP, strtol(optarg, NULL, 10)) == -1)
+        {
+          displayError(NULL, argv[0], "msq-message.c", __LINE__, strtol(optarg, NULL, 10));
+          errno = 521;
+          displayError(NULL, argv[0], __FILE__, __LINE__, strtol(optarg, NULL, 10));
+        }
         break;
 
       case '?':

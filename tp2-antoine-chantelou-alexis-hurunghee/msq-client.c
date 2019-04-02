@@ -1,87 +1,31 @@
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <getopt.h>
 #include <unistd.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
 #include <sys/types.h>
-#include  "msq-common.h"
-#include  "msq-message.h"
+#include "msq-common.h"
+#include "msq-message.h"
 
 char* global_argv;
 
 int main(int argc,  char *argv[])
 {
-  int opt,option_index = 0, id,requests,sec,times = 1;
-  char* pathname = "file.ftok";
   key_t key;
   msq_message_t messTMP;
-  static struct option long_options[] =
-  {
-    {"help",  0,  NULL, 'h'},
-    {"key-proj-id",  1,  NULL, 'i'},
-    {"key-pathname",  1,  NULL, 'p'},
-    {"seconds",  1,  NULL, 's'},
-    {"times",  1,  NULL, 't'},
-    {"version",  1,  NULL, 'v'},
-    {"message-text",  1,  NULL, 'x'},
-    {"message-type",  1,  NULL, 'y'},
-    {0,  0,  0,  0}
-  };
+  char* pathname = "file.ftok";
+  int id = 1,sec = 1, times = 1;
+  int option_index = 0, requests = 0;
+
   global_argv = malloc(sizeof(char) * strlen(argv[0]));
   global_argv = argv[0];
-  msq_message_set_text(&messTMP,  "This is the default message text");
-  msq_message_set_type(&messTMP,  1);
-  do
-  {
-    opt = getopt_long(argc, argv, "hvi:p:s:t:x:y:", long_options, &option_index);
-    switch(opt)
-    {
-      case 'h':
-        afficheHelp(argv, CLIENT);
-        break;
 
-      case 'v':
-        afficheVersion(argv);
-        break;
+  msq_message_set_text(&messTMP, "This is the default message text");
+  msq_message_set_type(&messTMP, 1);
 
-      case 'i':
-        id  = strtol(optarg, NULL, 10);
-        break;
-
-      case 'p':
-        pathname = optarg;
-        break;
-
-      case 's':
-        sec = strtol(optarg, NULL, 10);
-        break;
-
-      case 't':
-        times = strtol(optarg, NULL, 10);
-        break;
-
-      case 'x':
-        if(msq_message_set_text(&messTMP, optarg) == -1)
-          displayError(NULL, argv[0], __FILE__, __LINE__, optarg, strlen(optarg), MSQ_MESSAGE_TEXT_SIZE);
-        break;
-
-      case 'y':
-        if(msq_message_set_type(&messTMP, strtol(optarg, NULL, 10)) == -1)
-        {
-          displayError(NULL, argv[0], "msq-message.c", __LINE__, strtol(optarg, NULL, 10));
-          errno = 521;
-          displayError(NULL, argv[0], __FILE__, __LINE__, strtol(optarg, NULL, 10));
-        }
-        break;
-
-      case '?':
-          exit(1);
-        break;
-    }
-  } while(opt != -1);
-
+  argumentFromClient(argc, argv, ":hvi:p:s:t:x:y:", &option_index, &id, &pathname, &sec, &times, &messTMP);
 
   printf("proj_id = \"%d\"\n", id);
   printf("pathname = \"%s\"\n", pathname);
@@ -99,7 +43,7 @@ int main(int argc,  char *argv[])
 
   while(times > 0)
   {
-    msgsnd(requests,  &messTMP,  sizeof(messTMP),  0);
+    msgsnd(requests, &messTMP, sizeof(messTMP), 0);
     msq_message_print(messTMP);
     if(sec == 0)
       waitingForEnter();
