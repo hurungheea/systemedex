@@ -9,8 +9,6 @@
 #include "shm-message.h"
 #include "shm-common.h"
 
-char* global_argv;
-
 int main(int argc, char *argv[])
 {
     int opt = 0, option_index = 0, sec = 1, id = 1, times=0, daemon = 1,shmGetRes = 0;

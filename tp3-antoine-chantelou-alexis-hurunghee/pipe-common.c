@@ -1,6 +1,6 @@
 #include "pipe-common.h"
 
-void argument_opt(int argc, char **argv, char* optOptions, int* option_index, int* id, char** pathname,int* sec, int* times)
+void argument_opt(int argc, char **argv, char* optOptions, int* option_index, int* id, char** pathname,int* sec, int* times, pipe_message_t *messageTMP)
 {
     int opt = 0;
     static struct option long_options[] =
@@ -46,7 +46,12 @@ void argument_opt(int argc, char **argv, char* optOptions, int* option_index, in
           break;
 
         case 'x':
-
+          if(pipe_message_set_text(messageTMP,optarg) == -1)
+          {
+            errno = 150;
+            display_error(NULL,argv[0],__FILE__,__LINE__);
+            exit(EXIT_FAILURE);
+          }
           break;
 
         case '?':
@@ -106,11 +111,11 @@ void display_error(void* t, ...)
       break;
 
     case 150:
-      toPrint = "%s:%s:%d: Unable to copy the message.\n";
+      toPrint = "%s:%s:%d: Unable to set \"%s\" message text.\n";
       break;
 
     case 510:
-      toPrint = "%s:%s:%d: Unable to set the \"%s\" message text because its \"%d\" is greater than \"%d\".\n";
+      toPrint = "%s:%s:%d: Unable to set the \"%s\" message text because its \"%ld\" size is greater than \"%d\".\n";
       break;
 
     case 520:
@@ -136,5 +141,4 @@ void display_error(void* t, ...)
   va_start(args, t);
   vfprintf(stderr, toPrint,args);
   va_end(args);
-  exit(EXIT_FAILURE);
 }
