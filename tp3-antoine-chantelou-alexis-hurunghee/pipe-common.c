@@ -49,7 +49,7 @@ void argument_opt(int argc, char **argv, char* optOptions, int* option_index, in
           if(pipe_message_set_text(messageTMP,optarg) == -1)
           {
             errno = 150;
-            display_error(NULL,argv[0],__FILE__,__LINE__);
+            display_error(NULL,argv[0],__FILE__,__LINE__,optarg);
             exit(EXIT_FAILURE);
           }
           break;

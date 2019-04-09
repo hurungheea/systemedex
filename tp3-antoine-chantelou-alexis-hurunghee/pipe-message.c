@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include "pipe-message.h"
 #include "pipe-common.h"
@@ -28,10 +29,11 @@ void pipe_message_print(pipe_message_t message, const char *prefix)
   */
 int pipe_message_set_text(pipe_message_t *message, const char *text)
 {
-  if(strlen(text) > PIPE_MESSAGE_TEXT_SIZE)
+  if(strlen(text) + 1 > PIPE_MESSAGE_TEXT_SIZE)
   {
     errno = 510;
-    display_error(NULL, "./pipe-main.out", __FILE__, __LINE__, text, strlen(text),PIPE_MESSAGE_TEXT_SIZE);
+    display_error(NULL, "./pipe-main.out", __FILE__, __LINE__, text, strlen(text) + 1,PIPE_MESSAGE_TEXT_SIZE);
+    return -1;
   }
   strcpy(message->text,text);
   return 0;
@@ -46,6 +48,6 @@ int pipe_message_set_pid(pipe_message_t *message, pid_t pid)
 {
   if(pid <= (pid_t) 0)
     return -1;
-  message->pid = pid;
+  message->pid = (pid_t)pid;
   return 0;
 }
