@@ -1,8 +1,19 @@
 #include "pipe-common.h"
 
-void argument_opt(int argc, char **argv, char* optOptions, int* option_index, int* id, char** pathname,int* sec, int* times, pipe_message_t *messageTMP)
+void waitingForEnter()
+{
+  char k;
+  do
+  {
+    printf("Press the Enter key to read... ");
+    k = getchar();
+  }while(k != 0x0A);
+}
+
+void argument_opt(int argc, char **argv, char* optOptions, int* option_index, int* id, char** pathname,int* sec, int* times_receive, pipe_message_t *messageTMP, int* times_sending, int* seconds_sending)
 {
     int opt = 0;
+    char** end_ptr = '\0';
     static struct option long_options[] =
     {
       {"seconds-for-receiving=SECONDS",  1,  NULL, 'r'},
@@ -26,11 +37,11 @@ void argument_opt(int argc, char **argv, char* optOptions, int* option_index, in
           break;
 
         case 'r':
-
+          *times_receive = strtol(optarg,end_ptr,10);
           break;
 
         case 's':
-
+          *seconds_sending = strtol(optarg,end_ptr,10);
           break;
 
         case 't':
@@ -38,7 +49,7 @@ void argument_opt(int argc, char **argv, char* optOptions, int* option_index, in
           break;
 
         case 'u':
-
+          *times_sending = strtol(optarg,end_ptr,10);
           break;
 
         case 'v':
@@ -57,11 +68,13 @@ void argument_opt(int argc, char **argv, char* optOptions, int* option_index, in
         case '?':
           errno = 522;
           display_error(NULL, argv[0], __FILE__, __LINE__,argv[1][1]);
+          exit(EXIT_FAILURE);
           break;
 
         case ':':
           errno = 523;
           display_error(NULL, argv[0], __FILE__, __LINE__,argv[1][1]);
+          exit(EXIT_FAILURE);
           break;
       }
     } while(opt != -1);
