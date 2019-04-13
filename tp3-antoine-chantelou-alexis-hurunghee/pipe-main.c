@@ -14,49 +14,43 @@ int main(int argc, char **argv)
 
   pipe_message_t message_tampon,test;
 
-  int sec = 1, id = 1, times_receive = 1, times_sending = 1, seconds_sending = 1;
-  char* pathname = "file.ftok";
+  int times_receive = 1, times_sending = 1, seconds_sending = 1, times_receiving = -1;
   int option_index = 0;
 
-  if(pipe2(pipefd,O_DIRECT) == -1)
-  {
-    perror("pipefd error\n");
-    exit(EXIT_FAILURE);
-  }
 
-  argument_opt(argc,argv,":hvr:s:t:u:x:", &option_index, &id, &pathname, &sec, &times_receive, &message_tampon,&times_sending, &seconds_sending);
+  argument_opt(argc,argv,":hvr:s:t:u:x:", &option_index, &times_receive, &message_tampon,&times_sending, &seconds_sending, &times_receiving);
 
   if(times_receive == 0)
     waitingForEnter();
 
-  if(fork() == 0)
+  while(times_receiving < 0)
   {
-    if(pipe_message_set_text(&message_tampon,"This is the default message text") == -1)
+    if(pipe2(pipefd,O_DIRECT) == -1)
+    {
+      perror("pipefd error\n");
       exit(EXIT_FAILURE);
+    }
 
-    if(pipe_message_set_pid(&message_tampon,(pid_t) getpid()) == -1)
-      exit(EXIT_FAILURE);
+    if(times_sending > 0)
+    {
+      if(seconds_sending == 0)
+        waitingForEnter();
+      else
+      {
+        sleep(seconds_sending);
+        times_sending--;
+      }
+      call_my_son(&message_tampon, pipefd);
+    }
 
-    close(pipefd[0]);
-    write(pipefd[1],&message_tampon,sizeof(message_tampon));
-    pipe_message_print(message_tampon,WRITTEN);
+    wait(0);
 
-    exit(0);
-  }
-  wait(0);
+    sleep(times_receive);
 
-  while(times_receive > 0)
-  {
     close(pipefd[1]);
-    if(times_receive == 0)
-      waitingForEnter();
-    else
-      sleep(times_receive);
     if(read(pipefd[0],&test,sizeof(test)) > 0)
-      pipe_message_print(test,READ);
-
+      pipe_message_print(test, READ);
   }
-
 
   return 0;
 }

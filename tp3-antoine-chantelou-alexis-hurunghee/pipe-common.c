@@ -1,5 +1,29 @@
 #include "pipe-common.h"
 
+void call_my_son(pipe_message_t* message,int *pipefd)
+{
+  int write_pipe;
+  if(fork() == 0)
+  {
+    if(pipe_message_set_text(message,"This is the default message text") == -1)
+      exit(EXIT_FAILURE);
+
+    if(pipe_message_set_pid(message,(pid_t) getpid()) == -1)
+      exit(EXIT_FAILURE);
+
+    close(pipefd[0]);
+    
+    write_pipe = write(pipefd[1],message,sizeof(*message));
+    if(write_pipe == -1)
+    {
+      perror("Impossible d'écrire dans le pipe");
+      exit(EXIT_FAILURE);
+    }
+    pipe_message_print(*message,WRITTEN);
+    exit(0);
+  }
+}
+
 void waitingForEnter()
 {
   char k;
@@ -10,7 +34,7 @@ void waitingForEnter()
   }while(k != 0x0A);
 }
 
-void argument_opt(int argc, char **argv, char* optOptions, int* option_index, int* id, char** pathname,int* sec, int* times_receive, pipe_message_t *messageTMP, int* times_sending, int* seconds_sending)
+void argument_opt(int argc, char **argv, char* optOptions, int* option_index, int* seconds_receiving, pipe_message_t *messageTMP, int* times_sending, int* seconds_sending, int* times_receiving)
 {
     int opt = 0;
     char** end_ptr = '\0';
@@ -37,7 +61,7 @@ void argument_opt(int argc, char **argv, char* optOptions, int* option_index, in
           break;
 
         case 'r':
-          *times_receive = strtol(optarg,end_ptr,10);
+          *seconds_receiving = strtol(optarg,end_ptr,10);
           break;
 
         case 's':
@@ -45,7 +69,7 @@ void argument_opt(int argc, char **argv, char* optOptions, int* option_index, in
           break;
 
         case 't':
-
+          *times_receiving = strtol(optarg,end_ptr,10);
           break;
 
         case 'u':
