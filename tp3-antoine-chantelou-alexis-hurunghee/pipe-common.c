@@ -1,8 +1,9 @@
 #include "pipe-common.h"
 
-void call_my_son(pipe_message_t* message,int *pipefd)
+void call_my_son(pipe_message_t* message,int *pipefd, int seconds_sending, int times_sending)
 {
-  int write_pipe;
+  int write_pipe,i = 0;
+
   if(fork() == 0)
   {
     if(pipe_message_set_text(message,"This is the default message text") == -1)
@@ -12,14 +13,30 @@ void call_my_son(pipe_message_t* message,int *pipefd)
       exit(EXIT_FAILURE);
 
     close(pipefd[0]);
-    
-    write_pipe = write(pipefd[1],message,sizeof(*message));
-    if(write_pipe == -1)
+
+    while(times_sending > 0)
     {
-      perror("Impossible d'écrire dans le pipe");
-      exit(EXIT_FAILURE);
+      if(sleep(seconds_sending) == 0)
+      {
+        write_pipe = write(pipefd[1],message,sizeof(pipe_message_t));
+        times_sending--;
+      }
+      else
+      {
+        waitingForEnter();
+        write_pipe = write(pipefd[1],message,sizeof(pipe_message_t));
+        times_sending--;
+      }
+
+      if(write_pipe == -1)
+      {
+        perror("Impossible d'écrire dans le pipe");
+        exit(EXIT_FAILURE);
+      }
+      pipe_message_print(*message,WRITTEN);
+      i++;
     }
-    pipe_message_print(*message,WRITTEN);
+
     exit(0);
   }
 }

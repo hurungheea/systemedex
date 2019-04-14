@@ -21,7 +21,7 @@ void waitingForEnter();
 void display_help(char **argv);
 void display_error(void* t, ...);
 void display_version(char **argv);
-void call_my_son(pipe_message_t* message_tampon,int *pipefd);
+void call_my_son(pipe_message_t* message_tampon,int *pipefd, int seconds_sending, int times_sending);
 void argument_opt(int argc, char **argv, char* optOptions, int* option_index, int* seconds_receiving, pipe_message_t* messageTMP, int* times_sending, int* seconds_sending, int* times_receiving);
 
 #endif
