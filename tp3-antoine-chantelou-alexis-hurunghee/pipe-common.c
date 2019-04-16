@@ -2,7 +2,7 @@
 
 void call_my_son(pipe_message_t* message,int *pipefd, int seconds_sending, int times_sending)
 {
-  int write_pipe,i = 0;
+  int write_pipe, i = 0;
 
   if(fork() == 0)
   {
@@ -14,16 +14,18 @@ void call_my_son(pipe_message_t* message,int *pipefd, int seconds_sending, int t
 
     close(pipefd[0]);
 
-    while(times_sending > 0)
+    while(times_sending > i)
     {
-      if(sleep(seconds_sending) == 0)
+      if(i > 0)
       {
+        sleep(seconds_sending);
         write_pipe = write(pipefd[1],message,sizeof(pipe_message_t));
         times_sending--;
       }
       else
       {
-        waitingForEnter();
+        if(seconds_sending == 0)
+          waitingForEnter();
         write_pipe = write(pipefd[1],message,sizeof(pipe_message_t));
         times_sending--;
       }
@@ -33,10 +35,9 @@ void call_my_son(pipe_message_t* message,int *pipefd, int seconds_sending, int t
         perror("Impossible d'écrire dans le pipe");
         exit(EXIT_FAILURE);
       }
-      pipe_message_print(*message,WRITTEN);
       i++;
+      pipe_message_print(*message,WRITTEN);
     }
-
     exit(0);
   }
 }
@@ -46,7 +47,7 @@ void waitingForEnter()
   char k;
   do
   {
-    printf("Press the Enter key to read... ");
+    printf("Press the Enter key to read... \n");
     k = getchar();
   }while(k != 0x0A);
 }

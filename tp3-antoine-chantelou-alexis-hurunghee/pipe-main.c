@@ -20,9 +20,6 @@ int main(int argc, char **argv)
 
   argument_opt(argc,argv,":hvr:s:t:u:x:", &option_index, &seconds_receiving, &message_tampon,&times_sending, &seconds_sending, &times_receiving);
 
-  if(seconds_receiving == 0)
-    waitingForEnter();
-
   if(pipe2(pipefd,O_DIRECT) == -1)
   {
     perror("pipefd error\n");
@@ -33,22 +30,20 @@ int main(int argc, char **argv)
   {
     if(times_sending > 0)
     {
-      call_my_son(&message_tampon, pipefd,seconds_sending,times_sending);
+      call_my_son(&message_tampon, pipefd,seconds_sending, times_sending);
       times_sending -= times_sending;
       wait(0);
     }
 
-    close(pipefd[1]);
-    while((read_pipe = read(pipefd[0],&test,sizeof(test))) > 0 )
+    if(seconds_receiving > 0)
     {
-      if(seconds_receiving > 0)
-      {
-        sleep(seconds_receiving);
-      }
-      else
-      {
-        waitingForEnter();
-      }
+      sleep(seconds_receiving);
+    }
+    else
+      waitingForEnter();
+    close(pipefd[1]);
+    if((read_pipe = read(pipefd[0],&test,sizeof(test))) > 0 )
+    {
       pipe_message_print(test, READ);
     }
   }
