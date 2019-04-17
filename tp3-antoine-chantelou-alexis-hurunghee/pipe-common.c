@@ -12,9 +12,8 @@ void call_my_son(pipe_message_t* message,int *pipefd, int seconds_sending, int t
     if(pipe_message_set_pid(message,(pid_t) getpid()) == -1)
       exit(EXIT_FAILURE);
 
-    close(pipefd[0]);
 
-    while(times_sending > i)
+    while(times_sending >= i)
     {
       if(i > 0)
       {
@@ -26,10 +25,10 @@ void call_my_son(pipe_message_t* message,int *pipefd, int seconds_sending, int t
       {
         if(seconds_sending == 0)
           waitingForEnter();
+        close(pipefd[0]);
         write_pipe = write(pipefd[1],message,sizeof(pipe_message_t));
         times_sending--;
       }
-
       if(write_pipe == -1)
       {
         perror("Impossible d'écrire dans le pipe");

@@ -14,7 +14,7 @@ int main(int argc, char **argv)
 
   pipe_message_t message_tampon,test;
 
-  int seconds_receiving = 1, times_sending = 1, seconds_sending = 1, times_receiving = -1;
+  int seconds_receiving = 1, times_sending = 1, seconds_sending = 1, times_receiving = -1, i = 0;
   int option_index = 0;
 
 
@@ -28,25 +28,27 @@ int main(int argc, char **argv)
 
   while(times_receiving != 0)
   {
+    if(seconds_receiving == 0)
+      waitingForEnter();
     if(times_sending > 0)
     {
       call_my_son(&message_tampon, pipefd,seconds_sending, times_sending);
-      times_sending -= times_sending;
       wait(0);
+      times_sending -= times_sending;
     }
 
-    if(seconds_receiving > 0)
-    {
-      sleep(seconds_receiving);
-    }
-    else
-      waitingForEnter();
     close(pipefd[1]);
-    if((read_pipe = read(pipefd[0],&test,sizeof(test))) > 0 )
+    while((read_pipe = read(pipefd[0],&test,sizeof(test))) > 0 )
     {
+      if(seconds_receiving > 0)
+      {
+        sleep(seconds_receiving);
+      }
+      else if(i > 0)
+        waitingForEnter();
       pipe_message_print(test, READ);
+      i++;
     }
   }
-
   return 0;
 }
